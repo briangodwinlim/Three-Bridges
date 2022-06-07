@@ -1,0 +1,11 @@
+<conversation>
+    {% for message in messages %}
+        {% if message.sender_id == user.id %}
+            <message class="outgoing">{{ message.body }}</message>
+        {% elif message.sender_id == 1 %}
+            <message class="incoming-admin">{{ message.body }}</message>
+        {% else %}
+            <message class="incoming">{{ message.body }}</message>
+        {% endif %}
+    {% endfor %}
+</conversation>

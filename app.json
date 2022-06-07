@@ -1,0 +1,11 @@
+{
+  "stack": "container",
+  "env": {
+    "ERROR_PAGE_URL": {
+      "value": "https://github.com/briangodwinlim/Three-Bridges/tree/main/app/templates/error_heroku.html"
+    },
+    "MAINTENANCE_PAGE_URL": {
+      "value": "https://github.com/briangodwinlim/Three-Bridges/tree/main/app/templates/error_heroku.html"
+    }
+  }
+}

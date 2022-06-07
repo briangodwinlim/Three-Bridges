@@ -1,0 +1,168 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-section">
+        <form method="POST" action="" novalidate>
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-2">Admin Panel</legend>
+                <center><b>Score System</b></center>
+                <br>
+                <div class="row">
+                    <div class="col-sm-4">
+                    </div>
+                    <div class="col-sm-2">
+                        <center>{{ bridge_dict['A'] }}</center>
+                    </div>
+                    <div class="col-sm-2">
+                        <center>{{ bridge_dict['B'] }}</center>
+                    </div>
+                    <div class="col-sm-2">
+                        <center>{{ bridge_dict['C'] }}</center>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <p style="text-align:right">{{ bridge_dict['A'] }}</p>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        {% if form.AA.errors %}
+                            {{ form.AA(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.AA.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.AA(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group col-sm-2">
+                        {% if form.AB.errors %}
+                            {{ form.AB(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.AB.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.AB(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group col-sm-2">
+                        {% if form.AC.errors %}
+                            {{ form.AC(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.AC.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.AC(class="form-control") }}
+                        {% endif %}
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <p style="text-align:right">{{ bridge_dict['B'] }}</p>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        {% if form.BA.errors %}
+                            {{ form.BA(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.BA.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.BA(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group col-sm-2">
+                        {% if form.BB.errors %}
+                            {{ form.BB(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.BB.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.BB(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group col-sm-2">
+                        {% if form.BC.errors %}
+                            {{ form.BC(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.BC.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.BC(class="form-control") }}
+                        {% endif %}
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <p style="text-align:right">{{ bridge_dict['C'] }}</p>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        {% if form.CA.errors %}
+                            {{ form.CA(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.CA.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.CA(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group col-sm-2">
+                        {% if form.CB.errors %}
+                            {{ form.CB(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.CB.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.CB(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group col-sm-2">
+                        {% if form.CC.errors %}
+                            {{ form.CC(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.CC.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.CC(class="form-control") }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <br>
+                <div class="form-group">
+                    <b>{{ form.reset.label }}</b>
+                    <div class="col-sm-2">
+                        {{ form.reset(class="form-select") }}
+                    </div>
+                </div>
+
+            </fieldset>
+            <div class="form-group">
+                <br>
+                {{ form.submit(class="btn btn-primary") }} 
+            </div>
+        </form>
+    </div>
+{% endblock %}

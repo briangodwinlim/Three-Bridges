@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block header %}
+    {{ turbo() }}
+{% endblock %}
+
+{% block content %}
+    <h2>☠️ Welcome to My Island ☠️</h2>
+    <figure>
+        <blockquote class="blockquote">
+            <p class="mb-0 justify-content-md-start">
+                You and another traveler are both stuck on my island without any communication. 
+                To get out of the island, you both need to simultaneously cross 10 rivers using the three bridges available. 
+                When crossing a bridge, you can either collect the gold along the bridge, or lose gold when you accidentally drop it. 
+                The <b>Safe Bridge</b> can accommodate two persons at a time, but it only has minimal gold. 
+                The <b>Rocky Bridge</b> contains more gold, but it is more dangerous. 
+                The <b>Vine Bridge</b> is the riskiest bridge among the three, but it also contains the most gold. 
+                Can you escape the island with more gold?
+            </p>
+        </blockquote>
+        <figcaption class="blockquote-footer">
+            Blackbeard 🏴‍☠
+        </figcaption>
+    </figure>
+
+    <br>
+    {% if current_user.is_authenticated %}
+        Click <a class="text-decoration-none" href="{{ url_for('play') }}">Play</a> to start playing.
+        Send me an <a class="text-decoration-none" href="mailto:brian@brianlim.xyz">email</a> to report any bugs.
+    {% else %}
+        Click <a class="text-decoration-none" href="{{ url_for('login') }}">Login</a> to login and start playing.
+        Send me an <a class="text-decoration-none" href="mailto:brian@brianlim.xyz">email</a> to report any bugs.
+    {% endif %}
+    <br>
+
+    <div id="footer" class="my-footer">
+        <footer class="small bg-light">
+            <div class="text-center py-3">
+              Created by: <a href="https://www.brianlim.xyz" target="_blank" class="text-decoration-none">Brian Godwin Lim</a> v{{ version_number }}
+            </div>  
+        </footer>
+    </div>
+{% endblock %}

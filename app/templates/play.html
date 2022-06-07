@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block header %}
+    {{ turbo() }}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="content-section">
+                <form method="POST" action="" novalidate>
+                    {{ play_form.hidden_tag() }}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-2">Play</legend>
+                        <div class="form-group">
+                            {{ play_form.bridge.label }}
+                            {% if df.iloc[-2,1] == '' %}
+                                {{ play_form.bridge(class="form-select") }}
+                            {% else %}
+                                {{ play_form.bridge(class="form-select", disabled=True) }}
+                            {% endif %}
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        <br>
+                        {% if df.iloc[-2,1] == '' %}
+                            {{ play_form.submit(class="btn btn-primary") }}
+                        {% else %}
+                            {{ play_form.submit(class="btn btn-primary", disabled=True) }} 
+                        {% endif %} 
+                    </div>
+                </form>
+            </div>
+            
+            <div id="play_score">
+                {% include "play_score_init.html" %}
+            </div>
+        </div>
+
+        <div class="col-sm-8">
+            <div id="play_scoreboard">
+                {% include "play_scoreboard_init.html" %}
+            </div>
+        </div>
+
+        {% if checked %}
+            <input type="checkbox" id="check" checked> 
+        {% else %}
+            <input type="checkbox" id="check"> 
+        {% endif %}
+        <label class="chat-btn" for="check"> 
+            <i class="fa fa-commenting-o comment">
+                <span id="notification"><span>
+            </i> 
+            <i class="fa fa-close close"></i>
+        </label> 
+
+        <div class="wrapper bg-secondary mb-3" style="max-width: 20rem;">
+            <div class="chat-header">{{ df.columns[2].upper() if current_user.id != 1 else "ALL PLAYERS" }}</div>
+            <div class="chat-body scrollbar-primary" id="chatbox">
+                {% include "play_chatbox_init.html" %}
+            </div>
+            <div class="chat-footer">
+
+                <form method="POST" action="" novalidate>
+                    {{ message_form.hidden_tag() }}
+                    <div class="input-group mb-2">
+                        {{ message_form.message(class="form-control", placeholder="Aa", style="height: 40px; resize:none;") }}
+                        {{ message_form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+
+            </div>
+          </div>
+    </div>
+{% endblock %}
