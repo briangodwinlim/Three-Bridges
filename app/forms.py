@@ -46,3 +46,4 @@ class MessageForm(FlaskForm):
 class OpponentForm(FlaskForm):
     player = FieldList(SelectField('Select Opponent', validators=[DataRequired()]))
     submit = SubmitField('Update')
+    

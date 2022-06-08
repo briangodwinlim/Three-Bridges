@@ -9,6 +9,7 @@ class Player(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
+    reset_game = db.Column(db.Boolean(), nullable=False, default=False)
     record = db.relationship('Record', backref='player', lazy=True)
     messages_sent = db.relationship('Message', foreign_keys='Message.sender_id', backref='author', lazy=True)
     messages_received = db.relationship('Message', foreign_keys='Message.recipient_id', backref='recipient', lazy=True)
@@ -33,10 +34,10 @@ class Score(db.Model):
 class Record(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     bridge = db.Column(db.String(20), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('player.id'), nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey('player.id'), nullable=False)
 
     def __repr__(self):
-        return f"Record({Player.query.get(self.user_id).username}, {self.bridge})"
+        return f"Record({Player.query.get(self.player_id).username}, {self.bridge})"
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)

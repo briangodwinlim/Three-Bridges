@@ -27,6 +27,9 @@
                         {% else %}
                             {{ play_form.submit(class="btn btn-primary", disabled=True) }} 
                         {% endif %} 
+                        <div style="display: inline-block; width: 1px;"></div>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#ResetModal">Reset Game</button>
+                        
                     </div>
                 </form>
             </div>
@@ -71,5 +74,26 @@
 
             </div>
           </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="ResetModal" tabindex="-1" aria-labelledby="ResetModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ResetModal">Reset Game</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to reset the game?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <form action="{{ url_for('reset_game', player_id=current_user.id) }}" method="POST">
+                        <input type="submit" class="btn btn-danger" value="Reset Game">
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

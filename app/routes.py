@@ -225,6 +225,35 @@ def play():
     return render_template('play.html', title='Play', play_form=play_form, message_form=message_form, 
                 df=df, messages=messages, user=current_user, checked=checked)
 
+@app.route('/reset_game/<int:player_id>', methods=['POST'])
+@login_required
+def reset_game(player_id):
+    if current_user.id != player_id:
+        abort(403)
+    
+    player = Player.query.get(current_user.id)
+    player.reset_game = True
+    opponent = my_opponent(current_user)
+    db.session.commit()
+
+    if opponent.reset_game:
+        for record in Record.query.filter_by(player_id=player.id).all():
+            db.session.delete(record)
+        for record in Record.query.filter_by(player_id=opponent.id).all():
+            db.session.delete(record)
+        player.reset_game = False
+        opponent.reset_game = False
+        db.session.commit()
+        flash('New Game', 'success')
+    
+    else:
+        flash('Please wait for your opponent to reset the game', 'info')
+        message = Message(author = current_user, recipient = opponent, 
+                    body = 'INFO: Reset Game', timestamp = dt.datetime.now())
+        db.session.add(message)
+        db.session.commit()
+    return redirect(url_for('play'))
+
 def score_summary():
     score_df = pd.DataFrame([i for i in range(1,11)] + ['Total'], columns=['Round'])
     for user in Player.query.all():
@@ -246,7 +275,7 @@ def log():
 def inject_load():
     return {'score': Score.query.first(),
             'score_summary': score_summary(),
-            'version_number': '1.2',
+            'version_number': '1.3',
             'bridge_dict': dict(PlayForm.bridge.kwargs['choices'] + [('', '')])}
 
 @app.before_first_request
