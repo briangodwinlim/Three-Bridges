@@ -94,7 +94,9 @@ def admin():
 
         if form.reset.data == 'player':
             for opponent in Opponent.query.all():
-                if opponent.player == current_user: continue
+                if opponent.player == current_user: 
+                    opponent.opponent_id = current_user.id
+                    continue
                 db.session.delete(opponent)
 
             for user in Player.query.all():
@@ -171,23 +173,26 @@ def scoreboard(user):
         my_move = my_record[i].bridge if i < len(my_record) else ''
         op_move = ''
         my_score = np.nan
+        op_score = np.nan
         if i < len(op_record) and i < len(my_record):
             op_move = op_record[i].bridge
             my_score = getattr(score, my_move+op_move)
+            op_score = getattr(score, op_move+my_move)
 
         my_move = bridge_dict[my_move]
         op_move = bridge_dict[op_move]
 
         df = pd.concat([df,
-            pd.DataFrame([[i+1, my_move, op_move, my_score]], 
-                    columns=['Round', user.username, opponent.username, 'Score'])
+            pd.DataFrame([[i+1, my_move, op_move, my_score, op_score]], 
+                    columns=['Round', user.username, opponent.username, 'Your Score', f'{opponent.username} Score'])
         ]).reset_index(drop=True)
             
     df = pd.concat([df,
-        pd.DataFrame([['Total', '', '', df['Score'].dropna().sum()]], 
-                columns=['Round', user.username, opponent.username, 'Score'])
+        pd.DataFrame([['Total', '', '', df['Your Score'].dropna().sum(), df[f'{opponent.username} Score'].dropna().sum()]], 
+                columns=['Round', user.username, opponent.username, 'Your Score', f'{opponent.username} Score'])
     ]).reset_index(drop=True)
-    df['Score'] = df['Score'].fillna('')
+    df['Your Score'] = df['Your Score'].fillna('')
+    df[f'{opponent.username} Score'] = df[f'{opponent.username} Score'].fillna('')
 
     return df
 
@@ -218,7 +223,11 @@ def play():
 
     df = scoreboard(current_user)
     if df.iloc[-2,1] != '' and df.iloc[-2,2] != '' and not checked:
-        flash('Game Over', 'info')
+        if df.iloc[-1,3] == df.iloc[-1,4]:
+            flash('Game Over. Tie!', 'info')
+        else:
+            winner = current_user.username if df.iloc[-1,3] > df.iloc[-1,4] else my_opponent(current_user).username
+            flash(f'Game Over. Winner {winner}!', 'info')
     elif df.iloc[-2,1] != '' and df.iloc[-2,2] == '' and not checked:
         flash('Please wait for the game to finish', 'info')
 
@@ -257,7 +266,7 @@ def reset_game(player_id):
 def score_summary():
     score_df = pd.DataFrame([i for i in range(1,11)] + ['Total'], columns=['Round'])
     for user in Player.query.all():
-        score_df = pd.concat([score_df, scoreboard(user)[['Score']].rename({'Score': user.username}, axis=1)], axis=1)
+        score_df = pd.concat([score_df, scoreboard(user)[['Your Score']].rename({'Your Score': user.username}, axis=1)], axis=1)
     return score_df
 
 @app.route("/overview")
