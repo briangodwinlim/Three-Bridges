@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, FloatField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, FloatField, SelectField, FieldList
 from wtforms.validators import DataRequired, InputRequired, Length, Email, EqualTo, ValidationError
 from app.models import Player
 
@@ -42,3 +42,7 @@ class PlayForm(FlaskForm):
 class MessageForm(FlaskForm):
     message = StringField('Message', validators=[DataRequired(), Length(min=0, max=150)])
     submit = SubmitField('Send')
+
+class OpponentForm(FlaskForm):
+    player = FieldList(SelectField('Select Opponent', validators=[DataRequired()]))
+    submit = SubmitField('Update')

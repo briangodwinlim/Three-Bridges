@@ -12,6 +12,7 @@ class Player(db.Model, UserMixin):
     record = db.relationship('Record', backref='player', lazy=True)
     messages_sent = db.relationship('Message', foreign_keys='Message.sender_id', backref='author', lazy=True)
     messages_received = db.relationship('Message', foreign_keys='Message.recipient_id', backref='recipient', lazy=True)
+    opponent = db.relationship('Opponent', backref='player', lazy=True)
 
     def __repr__(self):
         return f"Player({self.username})"
@@ -49,3 +50,11 @@ class Message(db.Model):
         From {Player.query.get(self.sender_id)} to {Player.query.get(self.recipient_id)}:
             {self.body}
         """
+
+class Opponent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    player_id = db.Column(db.Integer, db.ForeignKey('player.id'), nullable=False)
+    opponent_id = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f"{Player.query.get(self.player_id)} - {Player.query.get(self.opponent_id)}"

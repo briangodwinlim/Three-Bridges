@@ -55,7 +55,7 @@
         </label> 
 
         <div class="wrapper bg-secondary mb-3" style="max-width: 20rem;">
-            <div class="chat-header">{{ df.columns[2].upper() if current_user.id != 1 else "ALL PLAYERS" }}</div>
+            <div class="chat-header">{{ df.columns[2] if current_user.id != 1 else "ALL PLAYERS" }}</div>
             <div class="chat-body scrollbar-primary" id="chatbox">
                 {% include "play_chatbox_init.html" %}
             </div>

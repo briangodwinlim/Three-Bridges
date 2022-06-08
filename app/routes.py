@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, abort
 from app import app, db, bcrypt, turbo
-from app.forms import RegistrationForm, LoginForm, AdminForm, PlayForm, MessageForm
-from app.models import Player, Score, Record, Message
+from app.forms import RegistrationForm, LoginForm, AdminForm, PlayForm, MessageForm, OpponentForm
+from app.models import Player, Score, Record, Message, Opponent
 from flask_login import login_user, current_user, login_required
 from flask_login.utils import logout_user
 import pandas as pd
@@ -25,12 +25,25 @@ def register():
     if form.validate_on_submit() and len(Player.query.all()) <= max_players+1:
         password = form.password.data if form.password.data else "NA"
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        user = Player(username = form.username.data, password = hashed_password)
+        user = Player(username = form.username.data.upper(), password = hashed_password)
         db.session.add(user)
         db.session.commit()
+
+        if len(Player.query.all()) == 1:
+            opponent = Opponent(opponent_id=user.id, player=user)
+        elif len(Player.query.all()) % 2 == 0:
+            opponent = Opponent(opponent_id=user.id, player=user)
+        elif len(Player.query.all()) % 2 == 1:
+            opponent_ = Opponent.query.all()[-1]
+            opponent = Opponent(opponent_id=opponent_.player_id, player=user)
+            opponent_.opponent_id = user.id
+        db.session.add(opponent)
+        db.session.commit()
+
         login_user(user, remember=False)
         flash(f'Account created. Welcome {user.username}!', 'success')
         return redirect(url_for('home'))
+
     elif len(Player.query.all()) > max_players+1:
         flash('Maximum players reached. Please try again later.', 'danger')
         return redirect(url_for('home'))
@@ -42,7 +55,7 @@ def login():
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = Player.query.filter_by(username=form.username.data).first()
+        user = Player.query.filter_by(username=form.username.data.upper()).first()
         password = form.password.data if form.password.data else "NA"
         if user and bcrypt.check_password_hash(user.password, password):
             login_user(user, remember=form.remember.data)
@@ -80,6 +93,10 @@ def admin():
                 db.session.delete(record)
 
         if form.reset.data == 'player':
+            for opponent in Opponent.query.all():
+                if opponent.player == current_user: continue
+                db.session.delete(opponent)
+
             for user in Player.query.all():
                 if user == current_user: continue
                 db.session.delete(user)
@@ -96,23 +113,51 @@ def admin():
         flash('Update successful', 'success')
         return redirect(url_for('admin'))
 
-    elif request.method == 'GET':
+    if request.method == 'GET':
         form.AA.data = score.AA; form.AB.data = score.AB; form.AC.data = score.AC 
         form.BA.data = score.BA; form.BB.data = score.BB; form.BC.data = score.BC 
         form.CA.data = score.CA; form.CB.data = score.CB; form.CC.data = score.CC 
     
     return render_template('admin.html', title='Admin', form=form)
 
+@app.route("/match", methods=['GET', 'POST'])
+@login_required
+def match():
+    if current_user != Player.query.first():
+        abort(403)
+
+    form = OpponentForm()
+    for player_form in form.player:
+        player_form.choices = [(str(player.id), player.username) for player in Player.query.all()]
+
+    if form.validate_on_submit(): 
+        for idx, player_form in enumerate(form.player):
+            player = Player.query.all()[idx]
+            opponent = Opponent.query.filter_by(player_id=player.id).first()
+            opponent.opponent_id = int(player_form.data)
+            db.session.commit()
+        
+        for player in Player.query.all():
+            if player == current_user: continue
+            my_opponent_id = Opponent.query.filter_by(player_id=player.id).first().opponent_id 
+            im_opponent = Opponent.query.filter_by(opponent_id=player.id).filter(Opponent.player!=current_user).all()
+            if len(im_opponent) != 1 or my_opponent_id != im_opponent[0].player_id or my_opponent_id == 1:
+                    flash('Please check match up', 'danger')
+                    break
+        return redirect(url_for('match'))
+    
+    if request.method == 'GET':
+        form.player.entries = []
+        for player in Player.query.all():
+            form.player.append_entry()
+            form.player[-1].label = player.username
+            form.player[-1].choices = [(str(player_.id), player_.username) for player_ in Player.query.all()]
+            form.player[-1].data = str(player.opponent[0].opponent_id)
+
+    return render_template('match.html', title='Match', form=form)
+
 def my_opponent(user):
-    players = Player.query.all()
-    idx = players.index(user)
-    if idx == 0:
-        opponent = players[1] if len(players) > 1 else players[0] 
-    elif idx % 2 == 1:
-        opponent = players[idx+1] if len(players) > idx+1 else players[idx] 
-    elif idx % 2 == 0:
-        opponent = players[idx-1]
-    return opponent
+    return Player.query.get(Opponent.query.filter_by(player=user).first().opponent_id)
 
 def scoreboard(user):
     opponent = my_opponent(user)
@@ -201,7 +246,7 @@ def log():
 def inject_load():
     return {'score': Score.query.first(),
             'score_summary': score_summary(),
-            'version_number': '1.1',
+            'version_number': '1.2',
             'bridge_dict': dict(PlayForm.bridge.kwargs['choices'] + [('', '')])}
 
 @app.before_first_request
