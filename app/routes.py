@@ -74,7 +74,7 @@ def logout():
 @app.route("/admin", methods=['GET', 'POST'])
 @login_required
 def admin():
-    if current_user != Player.query.first():
+    if current_user.id != 1:
         abort(403)
 
     score = Score.query.get(1)
@@ -125,7 +125,8 @@ def admin():
 @app.route("/match", methods=['GET', 'POST'])
 @login_required
 def match():
-    if current_user != Player.query.first():
+    print(current_user.id)
+    if current_user.id != 1:
         abort(403)
 
     form = OpponentForm()
@@ -159,7 +160,7 @@ def match():
     return render_template('match.html', title='Match', form=form)
 
 def my_opponent(user):
-    return Player.query.get(Opponent.query.filter_by(player=user).first().opponent_id)
+    return Player.query.filter_by(id=Opponent.query.filter_by(player=user).first().opponent_id).first()
 
 def scoreboard(user):
     opponent = my_opponent(user)
@@ -272,7 +273,7 @@ def score_summary():
 @app.route("/overview")
 @login_required
 def overview():
-    if current_user != Player.query.first():
+    if current_user.id != 1:
         abort(403)
     return render_template('overview.html', title='Overview')
 

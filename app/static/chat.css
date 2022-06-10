@@ -115,13 +115,6 @@
     border-top: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-.chat-btn,
-.chat-btn:focus,
-.chat-btn:hover {
-    background-color: blue;
-    border: blue;
-}
-
 #check {
     display: none !important
 }
