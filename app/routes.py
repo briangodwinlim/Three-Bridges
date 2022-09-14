@@ -147,6 +147,8 @@ def match():
             if len(im_opponent) != 1 or my_opponent_id != im_opponent[0].player_id or my_opponent_id == 1:
                     flash('Please check match up', 'danger')
                     break
+
+        flash('Update successful', 'success')
         return redirect(url_for('match'))
     
     if request.method == 'GET':
