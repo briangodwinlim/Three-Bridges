@@ -10,7 +10,7 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
     def validate_username(self, username):
-        if Player.query.filter_by(username=username.data).first():
+        if Player.query.filter_by(username=username.data.upper()).first():
             raise ValidationError('Username is taken')
 
 class LoginForm(FlaskForm):
