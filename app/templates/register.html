@@ -1,10 +1,12 @@
 {% extends "layout.html" %}
+
 {% block content %}
     <div class="content-section">
         <form method="POST" action="" novalidate>
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
                 <legend class="border-bottom mb-2">Register</legend>
+
                 <div class="form-group">
                     {{ form.username.label(class="col-form-label mt-4") }}
                     {% if form.username.errors %}
@@ -18,6 +20,7 @@
                         {{ form.username(class="form-control", type="text", placeholder="Username") }}
                     {% endif %}
                 </div>
+
                 <div class="form-group">
                     {{ form.password.label(class="col-form-label mt-4") }}
                     {% if form.password.errors %}
@@ -31,20 +34,22 @@
                         {{ form.password(class="form-control", type="password", placeholder="Password") }}
                     {% endif %}
                 </div>
+
                 <div class="form-group">
-                {{ form.confirm_password.label(class="col-form-label mt-4") }}
-                {% if form.confirm_password.errors %}
-                    {{ form.confirm_password(class="form-control is-invalid") }}
-                    <div class="invalid-feedback">
-                        {% for error in form.confirm_password.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    {{ form.confirm_password(class="form-control", type="password", placeholder="Password") }}
-                {% endif %}
+                    {{ form.confirm_password.label(class="col-form-label mt-4") }}
+                    {% if form.confirm_password.errors %}
+                        {{ form.confirm_password(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.confirm_password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.confirm_password(class="form-control", type="password", placeholder="Password") }}
+                    {% endif %}
                 </div>
             </fieldset>
+
             <div class="form-group">
                 <br>
                 {{ form.submit(class="btn btn-outline-primary") }} 

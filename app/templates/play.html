@@ -1,11 +1,9 @@
 {% extends "layout.html" %}
-{% block header %}
-    {{ turbo() }}
-{% endblock %}
 
 {% block content %}
     <div class="row">
         <div class="col-sm-4">
+            <!-- Play form -->
             <div class="content-section">
                 <form method="POST" action="" novalidate>
                     {{ play_form.hidden_tag() }}
@@ -13,43 +11,63 @@
                         <legend class="border-bottom mb-2">Play</legend>
                         <div class="form-group">
                             {{ play_form.bridge.label }}
-                            {% if df.iloc[-2,1] == '' %}
-                                {{ play_form.bridge(class="form-select") }}
-                            {% else %}
-                                {{ play_form.bridge(class="form-select", disabled=True) }}
-                            {% endif %}
+                            {{ play_form.bridge(class="form-select", disabled=disable_play_form) }}
                         </div>
                     </fieldset>
                     <div class="form-group">
                         <br>
-                        {% if df.iloc[-2,1] == '' %}
-                            {{ play_form.submit(class="btn btn-primary") }}
-                        {% else %}
-                            {{ play_form.submit(class="btn btn-primary", disabled=True) }} 
-                        {% endif %} 
+                        {{ play_form.submit(class="btn btn-primary", disabled=disable_play_form) }}
                         <div style="display: inline-block; width: 1px;"></div>
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#ResetModal">Reset Game</button>
-                        
                     </div>
                 </form>
             </div>
-            
-            <div id="play_score">
-                {% include "play_score_init.html" %}
+
+            <!-- Score system -->
+            <div id="score_system">
+                <center><b>Score System</b></center>
+                <table class="table table-sm">
+                    <tr>
+                        <td></td>
+                        <td style="text-align:center">{{ bridge_dict['A'] }}</td>
+                        <td style="text-align:center">{{ bridge_dict['B'] }}</td>
+                        <td style="text-align:center">{{ bridge_dict['C'] }}</td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align:center" width="30%">{{ bridge_dict['A'] }}</td>
+                        <td style="text-align:center">{{ score.AA }}</td>
+                        <td style="text-align:center">{{ score.AB }}</td>
+                        <td style="text-align:center">{{ score.AC }}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="text-align:center" width="30%">{{ bridge_dict['B'] }}</td>
+                        <td style="text-align:center">{{ score.BA }}</td>
+                        <td style="text-align:center">{{ score.BB }}</td>
+                        <td style="text-align:center">{{ score.BC }}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="text-align:center" width="30%">{{ bridge_dict['C'] }}</td>
+                        <td style="text-align:center">{{ score.CA }}</td>
+                        <td style="text-align:center">{{ score.CB }}</td>
+                        <td style="text-align:center">{{ score.CC }}</td>
+                    </tr>
+                </table>
             </div>
         </div>
 
+        <!-- Scoreboard -->
         <div class="col-sm-8">
-            <div id="play_scoreboard">
-                {% include "play_scoreboard_init.html" %}
+            <div>
+                <center><b>Scoreboard</b></center>
+                <table id="scoreboard" class="table table-hover table-sm table-responsive table-bordered"></table>
             </div>
         </div>
 
-        {% if checked %}
-            <input type="checkbox" id="check" checked> 
-        {% else %}
-            <input type="checkbox" id="check"> 
-        {% endif %}
+        <!-- Chatbox -->
+        <input type="checkbox" id="check"> 
         <label class="chat-btn" for="check"> 
             <i class="fa fa-commenting-o comment">
                 <span id="notification"><span>
@@ -58,12 +76,8 @@
         </label> 
 
         <div class="wrapper bg-secondary mb-3" style="max-width: 20rem;">
-            <div class="chat-header">{{ df.columns[2] if current_user.id != 1 else "ALL PLAYERS" }}</div>
-            <div class="chat-body scrollbar-primary" id="chatbox">
-                {% include "play_chatbox_init.html" %}
-            </div>
+            <div id="chat-history"></div>
             <div class="chat-footer">
-
                 <form method="POST" action="" novalidate>
                     {{ message_form.hidden_tag() }}
                     <div class="input-group mb-2">
@@ -71,9 +85,8 @@
                         {{ message_form.submit(class="btn btn-primary") }}
                     </div>
                 </form>
-
             </div>
-          </div>
+        </div>
     </div>
 
     <!-- Modal -->
@@ -96,4 +109,114 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascript %}
+    $(document).ready(function(){
+        function fetchScoreboard() {
+            $.ajax({
+                url: '/fetch_scoreboard',
+                type: 'GET',
+                success: function(response) {
+                    var scoreboard = JSON.parse(response.scoreboard);
+                    
+                    // Clear previous content
+                    $('#scoreboard').empty();
+                    
+                    // Build HTML table from DataFrame
+                    var table = '';
+                        
+                    // Add table header (thead)
+                    table += '<thead><tr class="table-primary">';
+                    for (var col in scoreboard[0]) {
+                        table += '<th style="text-align:center">' + col + '</th>';
+                    }
+                    table += '</tr></thead>';
+
+                    // Add table body (tbody)
+                    table += '<tbody>';
+                    for (var i = 0; i < scoreboard.length - 1; i++) {
+                        table += '<tr>';
+                        for (var col in scoreboard[i]) {
+                            table += '<td style="text-align:center">' + scoreboard[i][col] + '</td>';
+                        }
+                        table += '</tr>';
+                    }
+                    table += '</tbody>';
+
+                    // Add table footer (tfoot)
+                    table += '<tfoot><tr class="table-active">';
+                    for (var col in scoreboard[scoreboard.length - 1]) {
+                        table += '<td style="text-align:center">' + scoreboard[scoreboard.length - 1][col] + '</td>';
+                    }
+                    table += '</tr></tfoot>';
+                    
+                    // Update table
+                    $('#scoreboard').append(table);
+                    
+                    // Update flash messages
+                    if (response.message != '') {
+                        $('#flash-messages').empty();
+                        var message = '<div class="alert alert-dismissible alert-info">';
+                        message += '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+                        message += response.message + '</div>';
+                        $('#flash-messages').append(message);
+                    }
+                },
+                error: function(error) {
+                    console.log('Error:', error);
+                }
+            });
+        }
+
+        function fetchChat() {
+            $.ajax({
+                url: '/fetch_chat',
+                type: 'GET',
+                success: function(response) {
+                    // Chat notification
+                    $('#notification').empty();
+                    if (response.notify) {
+                        $('#notification').append('!');
+                        $('#notification').addClass('chat-badge');
+                    }
+                    else {
+                        $('#notification').append('');
+                        $('#notification').removeClass('chat-badge');
+                    }
+
+                    // Chatbox
+                    $('#chat-history').empty();
+                    var chat = '<div class="chat-header">' + response.recipient + '</div>';
+                    chat += '<div class="chat-body scrollbar-primary" id="chatbox"><conversation>';
+                    
+                    var messages = response.messages;
+                    console.log(messages);
+                    for (var i = 0; i < messages.length; i++) {
+                        if (messages[i][2]) {
+                            chat += '<message class="incoming-admin">' + messages[i][0] + '</message>';
+                        }
+                        else if (messages[i][1]) {
+                            chat += '<message class="outgoing">' + messages[i][0] + '</message>';
+                        }
+                        else {
+                            chat += '<message class="incoming">' + messages[i][0] + '</message>';
+                        }
+                    }
+                    chat += '</conversation></div>';
+
+                    // Update chat
+                    $('#chat-history').append(chat);
+                },
+                error: function(error) {
+                    console.log('Error:', error);
+                }
+            });
+        }
+        
+        fetchChat();
+        fetchScoreboard();
+        setInterval(fetchChat, 2000);
+        setInterval(fetchScoreboard, 2000);
+    });
 {% endblock %}

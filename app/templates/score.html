@@ -1,10 +1,12 @@
 {% extends "layout.html" %}
+
 {% block content %}
     <div class="content-section">
         <form method="POST" action="" novalidate>
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
                 <legend class="border-bottom mb-2">Admin Panel</legend>
+                
                 <center><b>Score System</b></center>
                 <br>
                 <div class="row">
@@ -20,7 +22,6 @@
                         <center>{{ bridge_dict['C'] }}</center>
                     </div>
                 </div>
-
 
                 <div class="row">
                     <div class="col-sm-4">
@@ -64,7 +65,6 @@
                     </div>
                 </div>
 
-
                 <div class="row">
                     <div class="col-sm-4">
                         <p style="text-align:right">{{ bridge_dict['B'] }}</p>
@@ -107,7 +107,6 @@
                     </div>
                 </div>
 
-
                 <div class="row">
                     <div class="col-sm-4">
                         <p style="text-align:right">{{ bridge_dict['C'] }}</p>
@@ -149,16 +148,16 @@
                         {% endif %}
                     </div>
                 </div>
-
                 <br>
+                
                 <div class="form-group">
                     <b>{{ form.reset.label }}</b>
                     <div class="col-sm-2">
                         {{ form.reset(class="form-select") }}
                     </div>
                 </div>
-
             </fieldset>
+
             <div class="form-group">
                 <br>
                 {{ form.submit(class="btn btn-primary") }} 

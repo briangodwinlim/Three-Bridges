@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div>
+        <center><b>Score Overview</b></center>
+        <table id="summary" class="table table-hover table-sm table-responsive table-bordered"></table>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    $(document).ready(function(){
+        function fetchSummary() {
+            $.ajax({
+                url: '/fetch_summary',
+                type: 'GET',
+                success: function(response) {
+                    var scores = JSON.parse(response.score_df);
+                    
+                    // Clear previous content
+                    $('#summary').empty();
+                    
+                    // Build HTML table from DataFrame
+                    var table = '';
+                        
+                    // Add table header (thead)
+                    table += '<thead><tr class="table-primary">';
+                    for (var col in scores[0]) {
+                        table += '<th style="text-align:center">' + col + '</th>';
+                    }
+                    table += '</tr></thead>';
+
+                    // Add table body (tbody)
+                    table += '<tbody>';
+                    for (var i = 0; i < scores.length - 1; i++) {
+                        table += '<tr>';
+                        for (var col in scores[i]) {
+                            table += '<td style="text-align:center">' + scores[i][col] + '</td>';
+                        }
+                        table += '</tr>';
+                    }
+                    table += '</tbody>';
+
+                    // Add table footer (tfoot)
+                    table += '<tfoot><tr class="table-active">';
+                    for (var col in scores[scores.length - 1]) {
+                        table += '<td style="text-align:center">' + scores[scores.length - 1][col] + '</td>';
+                    }
+                    table += '</tr></tfoot>';
+                    
+                    // Update table
+                    $('#summary').append(table);
+                },
+                error: function(error) {
+                    console.log('Error:', error);
+                }
+            });
+        }
+
+        fetchSummary();
+        setInterval(fetchSummary, 2000);
+    });
+{% endblock %}

@@ -1,23 +1,21 @@
-from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
+import os
+import click
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from turbo_flask import Turbo
-import os
-import secrets
-import click
 from flask.cli import with_appcontext
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template
 
+
+VERSION = '2.0'
+MAX_PLAYERS = 10
+
+
+# Set-up app environments
 app = Flask(__name__)
-turbo = Turbo(app)
-
-# secrets.token_hex(16)
-app.config['SECRET_KEY'] = '5a84c79054c33f4431941685d92b9e8c'
-
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '').replace('postgres://', 'postgresql://') or \
-            'sqlite:///' + os.path.join(basedir, 'app.db')
-
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'ThreeBridges')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '')
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'app.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -26,9 +24,12 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
-from app import routes
-from app.models import Score, Player, Record
 
+from app import routes
+from app.models import Score, Player
+
+
+# Error pages
 @app.errorhandler(404)
 def error_404(error):
     return render_template('error.html', message="Page not found"), 404
@@ -45,13 +46,14 @@ app.register_error_handler(404, error_404)
 app.register_error_handler(403, error_403)
 app.register_error_handler(500, error_500)
 
+
+# Admin utilities
 @click.command(name='create_tables')
 @with_appcontext
 def create_tables():
     db.drop_all()
     db.create_all()
-    init = 1
-    db.session.add(Score(AA=init, AB=init, AC=init, BA=init, BB=init, BC=init, CA=init, CB=init, CC=init))
+    db.session.add(Score(AA=1, AB=0, AC=0, BA=0, BB=1, BC=0, CA=0, CB=0, CC=1))
     db.session.commit()
     print('Tables created')
 

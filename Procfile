@@ -1,1 +1,0 @@
-web: gunicorn run:app --timeout 0 --preload --workers=3 --threads=3
